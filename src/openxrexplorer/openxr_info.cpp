@@ -373,6 +373,7 @@ xr_properties_t openxr_load_properties() {
 		result.passthrough_fb        = { XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES_FB };
 		result.render_model_fb       = { XR_TYPE_SYSTEM_RENDER_MODEL_PROPERTIES_FB };
 		result.space_warp_fb         = { XR_TYPE_SYSTEM_SPACE_WARP_PROPERTIES_FB };
+		result.spatial_entity_fb     = { XR_TYPE_SYSTEM_SPATIAL_ENTITY_PROPERTIES_FB };
 
 		result.system               .next = &result.hand_tracking;
 		result.hand_tracking        .next = &result.hand_mesh;
@@ -385,6 +386,7 @@ xr_properties_t openxr_load_properties() {
 		result.marker_tracking_varjo.next = &result.passthrough_fb;
 		result.passthrough_fb       .next = &result.render_model_fb;
 		result.render_model_fb      .next = &result.space_warp_fb;
+		result.space_warp_fb        .next = &result.spatial_entity_fb;
 
 		XrResult error = xrGetSystemProperties(xr_instance, xr_system_id, &result.system);
 		if (XR_FAILED(error)) {
@@ -493,6 +495,17 @@ xr_properties_t openxr_load_properties() {
 	table.column_count = 2;
 	table.cols[0].add({"recommendedMotionVectorImageRectHeight"}); table.cols[1].add({ new_string("%u", result.space_warp_fb.recommendedMotionVectorImageRectHeight) });
 	table.cols[0].add({"recommendedMotionVectorImageRectWidth" }); table.cols[1].add({ new_string("%u", result.space_warp_fb.recommendedMotionVectorImageRectWidth ) });
+	xr_tables.add(table);
+
+	table = {};
+	table.name_func    = "xrGetSystemProperties";
+	table.name_type    = "XrSystemSpatialEntityPropertiesFB";
+	table.spec         = "XrSystemSpatialEntityPropertiesFB";
+	table.error        = properties_err;
+	table.tag          = display_tag_properties;
+	table.show_type    = true;
+	table.column_count = 2;
+	table.cols[0].add({"supportsSpatialEntity"}); table.cols[1].add({result.spatial_entity_fb.supportsSpatialEntity ? "True":"False"});
 	xr_tables.add(table);
 
 	table = {};

@@ -74,6 +74,7 @@ struct xr_properties_t {
 	XrSystemPassthroughPropertiesFB          passthrough_fb;
 	XrSystemRenderModelPropertiesFB          render_model_fb;
 	XrSystemSpaceWarpPropertiesFB            space_warp_fb;
+	XrSystemSpatialEntityPropertiesFB        spatial_entity_fb;
 };
 
 struct xr_view_info_t {
