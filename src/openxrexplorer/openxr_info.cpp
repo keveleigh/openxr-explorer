@@ -901,7 +901,7 @@ void openxr_register_enums() {
 	info = { "xrEnumeratePerformanceMetricsCounterPathsMETA" };
 	info.source_type_name = "XrPath";
 	info.spec_link        = "xrEnumeratePerformanceMetricsCounterPathsMETA";
-	info.requires_instance= true;
+	info.requires_session = false;
 	info.tag              = display_tag_misc;
 	info.load_info        = [](xr_enum_info_t *ref_info, xr_settings_t settings) {
 		PFN_xrEnumeratePerformanceMetricsCounterPathsMETA xrEnumeratePerformanceMetricsCounterPathsMETA;
@@ -910,13 +910,13 @@ void openxr_register_enums() {
 
 		uint32_t count = 0;
 		error = xrEnumeratePerformanceMetricsCounterPathsMETA(xr_instance, 0, &count, nullptr);
-		array_t<XrPath> metric_paths(count, {});
-		xrEnumeratePerformanceMetricsCounterPathsMETA(xr_instance, count, &count, metric_paths.data);
+		array_t<XrPath> counter_paths(count, (XrPath)0);
+		xrEnumeratePerformanceMetricsCounterPathsMETA(xr_instance, count, &count, counter_paths.data);
 
-		for (size_t i = 0; i < metric_paths.count; i++) {
-			ref_info->items.add({ openxr_path_string(metric_paths[i]) });
+		for (size_t i = 0; i < counter_paths.count; i++) {
+			ref_info->items.add({ openxr_path_string(counter_paths[i]) });
 		}
-		metric_paths.free();
+		counter_paths.free();
 		return error;
 	};
 	xr_misc_enums.add(info);
