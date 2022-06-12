@@ -838,6 +838,29 @@ void openxr_register_enums() {
 	};
 	xr_misc_enums.add(info);
 
+	info = { "xrEnumeratePerformanceMetricsCounterPathsMETA" };
+	info.source_type_name = "XrPath";
+	info.spec_link        = "XrPath";
+	info.requires_session = false;
+	info.tag              = display_tag_misc;
+	info.load_info        = [](xr_enum_info_t *ref_info, xr_settings_t settings) {
+		PFN_xrEnumeratePerformanceMetricsCounterPathsMETA xrEnumeratePerformanceMetricsCounterPathsMETA;
+		XrResult error = xrGetInstanceProcAddr(xr_instance, "xrEnumeratePerformanceMetricsCounterPathsMETA", (PFN_xrVoidFunction *)(&xrEnumeratePerformanceMetricsCounterPathsMETA));
+		if (XR_FAILED(error)) return error;
+
+		uint32_t count = 0;
+		error = xrEnumeratePerformanceMetricsCounterPathsMETA(xr_instance, 0, &count, nullptr);
+		array_t<XrPath> counter_paths(count, (XrPath)0);
+		xrEnumeratePerformanceMetricsCounterPathsMETA(xr_instance, count, &count, counter_paths.data);
+
+		for (size_t i = 0; i < counter_paths.count; i++) {
+			ref_info->items.add({ openxr_path_string(counter_paths[i]) });
+		}
+		counter_paths.free();
+		return error;
+	};
+	xr_misc_enums.add(info);
+
 	info = { "xrEnumerateViveTrackerPathsHTCX" };
 	info.source_type_name = "XrViveTrackerPathsHTCX";
 	info.spec_link        = "XrViveTrackerPathsHTCX";
