@@ -921,6 +921,37 @@ void openxr_register_enums() {
 	};
 	xr_misc_enums.add(info);
 
+	info = { "xrEnumeratePersistedSpatialAnchorNamesMSFT" };
+	info.source_type_name = "XrSpatialAnchorPersistenceNameMSFT";
+	info.spec_link        = "XrSpatialAnchorPersistenceNameMSFT";
+	info.requires_session = true;
+	info.tag              = display_tag_misc;
+	info.load_info        = [](xr_enum_info_t *ref_info, xr_settings_t settings) {
+		PFN_xrCreateSpatialAnchorStoreConnectionMSFT xrCreateSpatialAnchorStoreConnectionMSFT;
+		XrResult error = xrGetInstanceProcAddr(xr_instance, "xrCreateSpatialAnchorStoreConnectionMSFT", (PFN_xrVoidFunction *)(&xrCreateSpatialAnchorStoreConnectionMSFT));
+		if (XR_FAILED(error)) return error;
+
+		XrSpatialAnchorStoreConnectionMSFT spatial_anchor_store = XR_NULL_HANDLE;
+		error = xrCreateSpatialAnchorStoreConnectionMSFT(xr_session, &spatial_anchor_store);
+		if (XR_FAILED(error)) return error;
+
+		PFN_xrEnumeratePersistedSpatialAnchorNamesMSFT xrEnumeratePersistedSpatialAnchorNamesMSFT;
+		error = xrGetInstanceProcAddr(xr_instance, "xrEnumeratePersistedSpatialAnchorNamesMSFT", (PFN_xrVoidFunction *)(&xrEnumeratePersistedSpatialAnchorNamesMSFT));
+		if (XR_FAILED(error)) return error;
+
+		uint32_t count = 0;
+		error = xrEnumeratePersistedSpatialAnchorNamesMSFT(spatial_anchor_store, 0, &count, nullptr);
+		array_t<XrSpatialAnchorPersistenceNameMSFT> anchor_names(count);
+		xrEnumeratePersistedSpatialAnchorNamesMSFT(spatial_anchor_store, count, &count, anchor_names.data);
+
+		for (size_t i = 0; i < anchor_names.count; i++) {
+			ref_info->items.add({ anchor_names[i].name });
+		}
+		anchor_names.free();
+		return error;
+	};
+	xr_misc_enums.add(info);
+
 	info = { "xrEnumerateReprojectionModesMSFT" };
 	info.source_type_name = "XrReprojectionModeMSFT";
 	info.spec_link        = "XrReprojectionModeMSFT";
