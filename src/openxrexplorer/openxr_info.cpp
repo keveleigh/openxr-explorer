@@ -332,36 +332,31 @@ xr_extensions_t openxr_load_exts() {
 	xr_tables.add(table);
 
 	for (size_t i = 0; i < result.layers.count; i++) {
-		table = {};
-		table.name_func = result.layers[i].layerName;
-		table.name_type = "XrExtensionProperties";
-		table.spec      = "api-layers";
-		table.tag       = display_tag_features;
-		table.column_count = 3;
-		table.header_row   = true;
-		table.cols[0].add({ "Extension Name" });
-		table.cols[1].add({ "Version", "Version" });
-		table.cols[2].add({ "Spec", "Spec" });
-
 		// Load and sort extensions
 		count = 0;
-		XrResult error = xrEnumerateInstanceExtensionProperties(result.layers[0].layerName, 0, &count, nullptr);
+		XrResult error = xrEnumerateInstanceExtensionProperties(result.layers[i].layerName, 0, &count, nullptr);
 		if (XR_FAILED(error)) {
 			table.error = openxr_result_string(error);
-		} else {
+		} else if (count > 0) {
 			array_t<XrExtensionProperties> extension_properties = array_t<XrExtensionProperties>::make_fill(count, {XR_TYPE_EXTENSION_PROPERTIES});
-			xrEnumerateInstanceExtensionProperties(result.layers[0].layerName, count, &count, extension_properties.data);
-			extension_properties.sort([](const XrExtensionProperties &a, const XrExtensionProperties &b) {
-				return strcmp(a.extensionName, b.extensionName);
-			});
+			xrEnumerateInstanceExtensionProperties(result.layers[i].layerName, count, &count, extension_properties.data);
 
-			for (size_t i = 0; i < extension_properties.count; i++) {
-				table.cols[0].add({extension_properties[i].extensionName});
-				table.cols[1].add({new_string("v%u",extension_properties[i].extensionVersion)});
-				table.cols[2].add({nullptr, extension_properties[i].extensionName});
+			table = {};
+			table.name_func = new_string("Layer: %s", result.layers[i].layerName);
+			table.name_type = "XrExtensionProperties";
+			table.tag       = display_tag_features;
+			table.column_count = 3;
+			table.header_row   = true;
+			table.cols[0].add({ "Extension Name" });
+			table.cols[1].add({ "Version", "Version" });
+			table.cols[2].add({ "Spec", "Spec" });
+			for (size_t i = 0; i < count; i++) {
+				table.cols[0].add({ extension_properties[i].extensionName });
+				table.cols[1].add({ new_string("v%u",extension_properties[i].extensionVersion) });
+				table.cols[2].add({ nullptr, extension_properties[i].extensionName });
 			}
+			xr_tables.add(table);
 		}
-		xr_tables.add(table);
 	}
 
 	return result;
